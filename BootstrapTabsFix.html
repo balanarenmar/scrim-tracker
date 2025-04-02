@@ -1,0 +1,56 @@
+<script>
+  // This code needs to be executed after the page is fully loaded
+  function fixBootstrapTabs() {
+    // Clear any existing click handlers on the tabs to avoid conflicts
+    $('#main-tabs a').off('click');
+    
+    // Properly initialize Bootstrap tabs with direct jQuery method
+    $('#main-tabs a').on('click', function (e) {
+      e.preventDefault();
+      $(this).tab('show');
+    });
+    
+    // Ensure the first tab is active on load
+    $('#main-tabs a:first').tab('show');
+    
+    // Initialize player tabs separately to avoid conflicts
+    showPlayerTab(1);
+  }
+
+  // Add this to your existing showPlayerTab function or replace it
+  function showPlayerTab(tabIndex) {
+    // Hide all player tab content first
+    $(".player-tab-content").hide();
+    
+    // Show the selected player tab content
+    $("#add-data-" + tabIndex).show();
+    
+    // Update active tab button state
+    $(".tab-button").removeClass("active");
+    $(".tab-button:nth-child(" + tabIndex + ")").addClass("active");
+    
+    // Sync common fields across forms
+    syncCommonFieldsAcrossForms();
+  }
+
+  // Ensure common fields are synced between forms
+  function syncCommonFieldsAcrossForms() {
+    const opponentTeam = $("#opponentTeam").val();
+    const matchResult = $("#matchResult").val();
+    
+    // Update all hidden fields in player forms
+    $("input[name='opponentTeam']").val(opponentTeam);
+    $("input[name='matchResult']").val(matchResult);
+  }
+
+  // Call this on page load
+  $(document).ready(function() {
+    console.log("Document ready, fixing tabs...");
+    setTimeout(fixBootstrapTabs, 100); // Small delay to ensure DOM is fully ready
+    
+    // Connect main form fields to sync function
+    $("#opponentTeam, #matchResult").on('change', function() {
+      syncCommonFieldsAcrossForms();
+    });
+  });
+</script>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CYPHER Scrimmage Data Tracker</title>
+    <?!= include('Stylesheet'); ?>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  </head>
+  <body>
+
+    <!-- clasp push TO GAS
+          clasp pull TO retrieve changes -->
+    <div role="tabpanel">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a role="tab" data-toggle="tab" aria-controls="home" href="#home">Home</a>
+            </li>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-controls="profile" href="#profile">Profile</a>
+            </li>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-controls="messages" href="#messages">Messages</a>
+            </li>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-controls="settings" href="#settings">Settings</a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">Lorem ipsum dolor sit amet</div>
+            <div role="tabpanel" class="tab-pane" id="profile">consectetur adipiscing elit,</div>
+            <div role="tabpanel" class="tab-pane" id="messages">sed do eiusmod tempor incididun</div>
+            <div role="tabpanel" class="tab-pane" id="settings">ut labore et dolore magna aliqua</div>
+        </div>
+    </div>
+
+    <div class="container">
+      <h1>CYPHER Scrimmage Data Tracker</h1>
+      
+      <div class="match-info">
+        <div class="form-group">
+          <label for="opponentTeam">Opponent Team:</label>
+          <input type="text" id="opponentTeam" name="opponentTeam" placeholder="Enter opponent team name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="matchResult">Result:</label>
+          <select id="matchResult" name="matchResult" required>
+            <option value="">Select Result</option>
+            <option value="W">Win</option>
+            <option value="L">Loss</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="tabs">
+        <button class="tab-button active" onclick="showTab(1)">Player 1</button>
+        <button class="tab-button" onclick="showTab(2)">Player 2</button>
+        <button class="tab-button" onclick="showTab(3)">Player 3</button>
+        <button class="tab-button" onclick="showTab(4)">Player 4</button>
+        <button class="tab-button" onclick="showTab(5)">Player 5</button>
+      </div>
+      
+      <div id="add-data-1" class="tab-content">
+        <h2>Add Player 1 Data</h2>
+        
+        <form id="scrim-form-1">
+          <!-- Hidden match info fields that will be synced -->
+          <input type="hidden" name="opponentTeam">
+          <input type="hidden" name="matchResult">
+          
+          <div class="form-group">
+            <label for="member-1">Team Member:</label>
+            <select id="member-1" name="member" class="member-select" required>
+              <option value="">Select Member</option>
+              <!-- Will be populated by JavaScript -->
+            </select>
+          </div>
+          
+          <!-- Sub player name field (initially hidden) -->
+          <div class="form-group sub-name-container" id="sub-name-container-1" style="display: none;">
+            <label for="sub-name-1">Enter Sub Name:</label>
+            <input type="text" id="sub-name-1" class="sub-name" placeholder="Enter substitute player name">
+          </div>
+
+          <div class="form-group">
+            <label for="role-1">Role:</label>
+            <select id="role-1" name="role" class="role-select" required>
+              <option value="">Select Role</option>
+              <!-- Will be populated by JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="pokemon-1">Pokémon:</label>
+            <select id="pokemon-1" name="pokemon" class="pokemon-select" required>
+              <option value="">Select Pokémon</option>
+            </select>
+          </div>
+
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="moveset1-1">Move 1:</label>
+              <select id="moveset1-1" name="moveset1" class="moveset1-select" required>
+                <option value="">Move 1</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="moveset2-1">Move 2:</label>
+              <select id="moveset2-1" name="moveset2" class="moveset2-select" required>
+                <option value="">Move 2</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="damageDealt-1">Damage Dealt:</label>
+              <input type="number" id="damageDealt-1" name="damageDealt" min="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="damageReceived-1">Damage Received:</label>
+              <input type="number" id="damageReceived-1" name="damageReceived" min="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="recovery-1">Recovery:</label>
+              <input type="number" id="recovery-1" name="recovery" min="0" required>
+            </div>
+          </div>
+          
+          <div class="nav-group single-button">
+            <button type="button" class="nav-btn next-btn" onclick="showTab(2)">Next Player</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="add-data-2" class="tab-content">
+        <h2>Add Player 2 Data</h2>
+        
+        <form id="scrim-form-2">
+          <!-- Hidden match info fields that will be synced -->
+          <input type="hidden" name="opponentTeam">
+          <input type="hidden" name="matchResult">
+          
+          <div class="form-group">
+            <label for="member-2">Team Member:</label>
+            <select id="member-2" name="member" class="member-select" required>
+              <option value="">Select Member</option>
+            </select>
+          </div>
+          
+          <!-- Sub player name field (initially hidden) -->
+          <div class="form-group sub-name-container" id="sub-name-container-2" style="display: none;">
+            <label for="sub-name-2">Enter Sub Name:</label>
+            <input type="text" id="sub-name-2" class="sub-name" placeholder="Enter substitute player name">
+          </div>
+
+          <div class="form-group">
+            <label for="role-2">Role:</label>
+            <select id="role-2" name="role" class="role-select" required>
+              <option value="">Select Role</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="pokemon-2">Pokémon:</label>
+            <select id="pokemon-2" name="pokemon" class="pokemon-select" required>
+              <option value="">Select Pokémon</option>
+            </select>
+          </div>
+
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="moveset1-2">Move 1:</label>
+              <select id="moveset1-2" name="moveset1" class="moveset1-select" required>
+                <option value="">Move 1</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="moveset2-2">Move 2:</label>
+              <select id="moveset2-2" name="moveset2" class="moveset2-select" required>
+                <option value="">Move 2</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="damageDealt-2">Damage Dealt:</label>
+              <input type="number" id="damageDealt-2" name="damageDealt" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="damageReceived-2">Damage Received:</label>
+              <input type="number" id="damageReceived-2" name="damageReceived" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="recovery-2">Recovery:</label>
+              <input type="number" id="recovery-2" name="recovery" min="0" required>
+            </div>
+          </div>
+          
+          <div class="nav-group">
+            <button type="button" class="nav-btn back-btn" onclick="showTab(1)">Back</button>
+            <button type="button" class="nav-btn next-btn" onclick="showTab(3)">Next Player</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="add-data-3" class="tab-content">
+        <h2>Add Player 3 Data</h2>
+        
+        <form id="scrim-form-3">
+          <!-- Hidden match info fields that will be synced -->
+          <input type="hidden" name="opponentTeam">
+          <input type="hidden" name="matchResult">
+          
+          <div class="form-group">
+            <label for="member-3">Team Member:</label>
+            <select id="member-3" name="member" class="member-select" required>
+              <option value="">Select Member</option>
+            </select>
+          </div>
+          
+          <!-- Sub player name field (initially hidden) -->
+          <div class="form-group sub-name-container" id="sub-name-container-3" style="display: none;">
+            <label for="sub-name-3">Enter Sub Name:</label>
+            <input type="text" id="sub-name-3" class="sub-name" placeholder="Enter substitute player name">
+          </div>
+
+          <div class="form-group">
+            <label for="role-3">Role:</label>
+            <select id="role-3" name="role" class="role-select" required>
+              <option value="">Select Role</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="pokemon-3">Pokémon:</label>
+            <select id="pokemon-3" name="pokemon" class="pokemon-select" required>
+              <option value="">Select Pokémon</option>
+            </select>
+          </div>
+
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="moveset1-3">Move 1:</label>
+              <select id="moveset1-3" name="moveset1" class="moveset1-select" required>
+                <option value="">Move 1</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="moveset2-3">Move 2:</label>
+              <select id="moveset2-3" name="moveset2" class="moveset2-select" required>
+                <option value="">Move 2</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="damageDealt-3">Damage Dealt:</label>
+              <input type="number" id="damageDealt-3" name="damageDealt" min="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="damageReceived-3">Damage Received:</label>
+              <input type="number" id="damageReceived-3" name="damageReceived" min="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="recovery-3">Recovery:</label>
+              <input type="number" id="recovery-3" name="recovery" min="0" required>
+            </div>
+          </div>
+                    
+          <div class="nav-group">
+            <button type="button" class="nav-btn back-btn" onclick="showTab(2)">Back</button>
+            <button type="button" class="nav-btn next-btn" onclick="showTab(4)">Next Player</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="add-data-4" class="tab-content">
+        <h2>Add Player 4 Data</h2>
+        
+        <form id="scrim-form-4">
+          <!-- Hidden match info fields that will be synced -->
+          <input type="hidden" name="opponentTeam">
+          <input type="hidden" name="matchResult">
+          
+          <div class="form-group">
+            <label for="member-4">Team Member:</label>
+            <select id="member-4" name="member" class="member-select" required>
+              <option value="">Select Member</option>
+            </select>
+          </div>
+          
+          <!-- Sub player name field (initially hidden) -->
+          <div class="form-group sub-name-container" id="sub-name-container-4" style="display: none;">
+            <label for="sub-name-4">Enter Sub Name:</label>
+            <input type="text" id="sub-name-4" class="sub-name" placeholder="Enter substitute player name">
+          </div>
+
+          <div class="form-group">
+            <label for="role-4">Role:</label>
+            <select id="role-4" name="role" class="role-select" required>
+              <option value="">Select Role</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="pokemon-4">Pokémon:</label>
+            <select id="pokemon-4" name="pokemon" class="pokemon-select" required>
+              <option value="">Select Pokémon</option>
+            </select>
+          </div>
+
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="moveset1-4">Move 1:</label>
+              <select id="moveset1-4" name="moveset1" class="moveset1-select" required>
+                <option value="">Move 1</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="moveset2-4">Move 2:</label>
+              <select id="moveset2-4" name="moveset2" class="moveset2-select" required>
+                <option value="">Move 2</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="damageDealt-4">Damage Dealt:</label>
+              <input type="number" id="damageDealt-4" name="damageDealt" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="damageReceived-4">Damage Received:</label>
+              <input type="number" id="damageReceived-4" name="damageReceived" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="recovery-4">Recovery:</label>
+              <input type="number" id="recovery-4" name="recovery" min="0" required>
+            </div>
+          </div>
+          
+          <div class="nav-group">
+            <button type="button" class="nav-btn back-btn" onclick="showTab(3)">Back</button>
+            <button type="button" class="nav-btn next-btn" onclick="showTab(5)">Next Player</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="add-data-5" class="tab-content">
+        <h2>Add Player 5 Data</h2>
+        
+        <form id="scrim-form-5">
+          <!-- Hidden match info fields that will be synced -->
+          <input type="hidden" name="opponentTeam">
+          <input type="hidden" name="matchResult">
+          
+          <div class="form-group">
+            <label for="member-5">Team Member:</label>
+            <select id="member-5" name="member" class="member-select" required>
+              <option value="">Select Member</option>
+            </select>
+          </div>
+          
+          <!-- Sub player name field (initially hidden) -->
+          <div class="form-group sub-name-container" id="sub-name-container-5" style="display: none;">
+            <label for="sub-name-5">Enter Sub Name:</label>
+            <input type="text" id="sub-name-5" class="sub-name" placeholder="Enter substitute player name">
+          </div>
+
+          <div class="form-group">
+            <label for="role-5">Role:</label>
+            <select id="role-5" name="role" class="role-select" required>
+              <option value="">Select Role</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="pokemon-5">Pokémon:</label>
+            <select id="pokemon-5" name="pokemon" class="pokemon-select" required>
+              <option value="">Select Pokémon</option>
+            </select>
+          </div>
+
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="moveset1-5">Move 1:</label>
+              <select id="moveset1-5" name="moveset1" class="moveset1-select" required>
+                <option value="">Move 1</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="moveset2-5">Move 2:</label>
+              <select id="moveset2-5" name="moveset2" class="moveset2-select" required>
+                <option value="">Move 2</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="moveset-container">
+            <div class="form-group">
+              <label for="damageDealt-5">Damage Dealt:</label>
+              <input type="number" id="damageDealt-5" name="damageDealt" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="damageReceived-5">Damage Received:</label>
+              <input type="number" id="damageReceived-5" name="damageReceived" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="recovery-5">Recovery:</label>
+              <input type="number" id="recovery-5" name="recovery" min="0" required>
+            </div>
+          </div>
+          
+          <div class="nav-group">
+            <button type="button" class="nav-btn back-btn" onclick="showTab(4)">Back</button>
+            <button type="button" class="submit-btn">Save All Data</button>
+          </div>
+        </form>
+      </div>
+      
+      <div id="status-message"></div>
+    </div>
+    
+    <?!= include('JavaScript'); ?>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
