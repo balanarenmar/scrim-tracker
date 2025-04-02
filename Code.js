@@ -2,9 +2,9 @@
 const SPREADSHEET_ID = '1pMDPXkSo7_lWcvQwtwsx55yGetNo-rytOYRqvGR9Us4';
 const SHEET_NAME = 'ScrimData';
 
-// Define team members AAA
+// Define team members
 const TEAM_MEMBERS = [
-  'Kaze', 'winter', 'Yato', 'Yob', 'zark', 'Member 6', 'sub1', 'sub2'
+  '</>メDEVA', '</>メwinter', '</>メYato', '</>メYob-Jak', '</>メzark', '</>メオ',
 ];
 
 // ======== WEB APP INTERFACE =========

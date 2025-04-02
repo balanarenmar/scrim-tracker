@@ -1,0 +1,573 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+
+<!--Place any script in the tags below-->
+<script>
+  // Main initialization function
+  document.addEventListener("DOMContentLoaded", function() {
+    let currentTab = 1;
+    const totalTabs = 5;
+    const selectedMembers = new Set();
+
+    // Initialize tabs
+    initializeTabs();
+    
+    // Load initial data
+    loadTeamMembers();
+    loadRoles();
+    
+    // Add event listener to the final submit button
+    document.querySelector(".submit-btn").addEventListener("click", function(e) {
+      e.preventDefault();
+      submitAllData();
+    });
+    
+    // Initialize navigation
+    initializeNavigation();
+    
+    // Initialize match info sync
+    initializeMatchInfoSync();
+    
+    // Call once on page load to set initial state
+    setTimeout(updateMatchResultStyle, 500); // Small delay to ensure the select is populated
+  });
+
+  // Tab navigation functions
+  function initializeTabs() {
+    // Initialize Bootstrap tabs if available
+    const playerTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+    if (playerTabs.length > 0) {
+      // Using Bootstrap tabs
+      // No need to add additional handlers as Bootstrap handles the switching
+    } else {
+      // Using custom tab implementation
+      showTab(1); // Initialize first tab
+      
+      // Add event listeners to tab buttons
+      document.querySelectorAll(".tab-button").forEach((btn, index) => {
+        btn.addEventListener("click", function() {
+          showTab(index + 1);
+        });
+      });
+    }
+  }
+
+  // Function to show a specific tab
+  function showTab(tabIndex) {
+    if (document.querySelector('[data-bs-toggle="tab"]')) {
+      // Using Bootstrap tabs
+      const tabEl = document.querySelector(`#player${tabIndex}-tab`);
+      if (tabEl) {
+        const tab = new bootstrap.Tab(tabEl);
+        tab.show();
+      }
+    } else {
+      // Using custom tab implementation
+      // Hide all tab content first
+      document.querySelectorAll(".tab-content").forEach(tab => {
+        tab.classList.remove("active");
+        tab.style.display = "none";
+      });
+
+      // Show the selected tab content
+      const activeTab = document.getElementById(`add-data-${tabIndex}`);
+      if (activeTab) {
+        activeTab.classList.add("active");
+        activeTab.style.display = "block";
+      }
+
+      // Update active tab button state
+      document.querySelectorAll(".tab-button").forEach((btn, index) => {
+        if (index + 1 === tabIndex) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+    
+    // Update current tab tracker
+    currentTab = tabIndex;
+    
+    // Sync common fields across tabs
+    syncCommonFields();
+  }
+
+  // Navigate to next tab
+  function showNextTab(currentTab) {
+    if (currentTab < 5) {
+      showTab(currentTab + 1);
+    }
+  }
+
+  // Navigate to previous tab
+  function showPrevTab(currentTab) {
+    if (currentTab > 1) {
+      showTab(currentTab - 1);
+    }
+  }
+
+  // Function to initialize site navigation
+  function initializeNavigation() {
+    const navInput = document.getElementById('nav-input');
+    const navInsights = document.getElementById('nav-insights');
+    const inputSection = document.getElementById('input-section');
+    const insightsSection = document.getElementById('insights-section');
+    
+    if (navInput && navInsights) {
+      navInput.addEventListener('click', function(e) {
+        e.preventDefault();
+        inputSection.style.display = 'block';
+        insightsSection.style.display = 'none';
+        navInput.classList.add('active');
+        navInsights.classList.remove('active');
+      });
+      
+      navInsights.addEventListener('click', function(e) {
+        e.preventDefault();
+        inputSection.style.display = 'none';
+        insightsSection.style.display = 'block';
+        navInput.classList.remove('active');
+        navInsights.classList.add('active');
+      });
+    }
+  }
+
+  // Function to synchronize common fields across all tabs
+  function syncCommonFields(sourceElement = null) {
+    // If a source element is provided, sync all other elements to match its value
+    if (sourceElement) {
+      const fieldName = sourceElement.name;
+      const fieldValue = sourceElement.value;
+      
+      document.querySelectorAll(`[name='${fieldName}']`).forEach(field => {
+        if (field !== sourceElement) {
+          field.value = fieldValue;
+        }
+      });
+    } else {
+      // Otherwise, just ensure all common fields have the same values
+      // For match result
+      const resultFields = document.querySelectorAll("select[name='matchResult']");
+      if (resultFields.length > 0 && resultFields[0].value) {
+        const firstValue = resultFields[0].value;
+        resultFields.forEach(field => field.value = firstValue);
+      }
+      
+      // For opponent team
+      const opponentFields = document.querySelectorAll("input[name='opponentTeam']");
+      if (opponentFields.length > 0 && opponentFields[0].value) {
+        const firstValue = opponentFields[0].value;
+        opponentFields.forEach(field => field.value = firstValue);
+      }
+    }
+  }
+
+  // Function to initialize match info synchronization
+  function initializeMatchInfoSync() {
+    const mainOpponentTeam = document.getElementById('opponentTeam');
+    const mainMatchResult = document.getElementById('matchResult');
+    
+    if (mainOpponentTeam) {
+      mainOpponentTeam.addEventListener('input', function() {
+        syncCommonFields(this);
+      });
+    }
+    
+    if (mainMatchResult) {
+      mainMatchResult.addEventListener('change', function() {
+        updateMatchResultStyle();
+        syncCommonFields(this);
+      });
+    }
+    
+    // Add event listeners to all match result and opponent team fields for syncing
+    document.querySelectorAll("select[name='matchResult'], input[name='opponentTeam']").forEach(field => {
+      field.addEventListener("change", function() {
+        syncCommonFields(this);
+      });
+    });
+  }
+
+  // Function to load team members
+  function loadTeamMembers() {
+    console.log("Loading team members...");
+    
+    google.script.run.withSuccessHandler(function(members) {
+      console.log("Received members:", members);
+      
+      // Add change event listeners to all member selects
+      document.querySelectorAll("select[name='member']").forEach(selectElement => {
+        // Clear existing options
+        selectElement.innerHTML = '<option value="">Select Member</option>';
+        
+        // Add standard team member options
+        members.forEach(function(member) {
+          const option = document.createElement("option");
+          option.value = member;
+          option.textContent = member;
+          selectElement.appendChild(option);
+        });
+        
+        // Add substitute options
+        const sub1Option = document.createElement("option");
+        sub1Option.value = "sub1";
+        sub1Option.textContent = "Substitute 1";
+        selectElement.appendChild(sub1Option);
+        
+        const sub2Option = document.createElement("option");
+        sub2Option.value = "sub2";
+        sub2Option.textContent = "Substitute 2";
+        selectElement.appendChild(sub2Option);
+        
+        // Add change listener to handle selection changes
+        selectElement.addEventListener("change", function(event) {
+          // First handle the substitute player logic
+          handleSubstitutePlayer(event);
+          
+          // Then handle regular member selection logic
+          handleMemberSelection(event);
+        });
+      });
+      
+      // Initialize the selected members tracking
+      updateSelectedMembers();
+    }).getTeamMembers();
+  }
+
+  // Function to handle substitute player selection
+  function handleSubstitutePlayer(event) {
+    const selectElement = event.target;
+    const selectedValue = selectElement.value;
+    const playerNum = selectElement.id.split('-')[1] || "1"; // Default to 1 if ID format doesn't match
+    
+    // Get the sub name container for this player
+    const subNameContainer = document.getElementById(`sub-name-container-${playerNum}`);
+    const subNameInput = document.getElementById(`sub-name-${playerNum}`);
+    
+    // Show/hide sub name field based on selection
+    if (subNameContainer && subNameInput) {
+      if (selectedValue === 'sub1' || selectedValue === 'sub2' || selectedValue === 'Sub') {
+        subNameContainer.style.display = 'block';
+        subNameInput.required = true;
+      } else {
+        subNameContainer.style.display = 'none';
+        subNameInput.required = false;
+        subNameInput.value = '';
+      }
+    }
+  }
+
+  // Function to handle member selection changes
+  function handleMemberSelection(event) {
+    // Update the tracking of selected members
+    updateSelectedMembers();
+    
+    // Disable this member in other dropdowns
+    updateMemberDropdowns();
+  }
+
+  // Function to track which members are currently selected
+  function updateSelectedMembers() {
+    // Clear the tracking set
+    const selectedMembers = new Set();
+    
+    // Gather all currently selected members (excluding subs)
+    document.querySelectorAll("select[name='member']").forEach(select => {
+      if (select.value && select.value !== 'sub1' && select.value !== 'sub2' && select.value !== 'Sub') {
+        selectedMembers.add(select.value);
+      }
+    });
+    
+    return selectedMembers;
+  }
+
+  // Function to update all member dropdowns based on current selections
+  function updateMemberDropdowns() {
+    const selectedMembers = updateSelectedMembers();
+    
+    // For each member dropdown
+    document.querySelectorAll("select[name='member']").forEach(select => {
+      const currentValue = select.value;
+      
+      // For each option in this dropdown
+      Array.from(select.options).forEach(option => {
+        // Skip the empty option, sub1, and sub2 options
+        if (option.value === "" || option.value === "sub1" || option.value === "sub2" || option.value === "Sub") return;
+        
+        // If this option is selected in this dropdown, keep it enabled
+        if (option.value === currentValue) {
+          option.disabled = false;
+        } 
+        // If this option is selected in another dropdown, disable it
+        else if (selectedMembers.has(option.value)) {
+          option.disabled = true;
+        } 
+        // Otherwise, make sure it's enabled
+        else {
+          option.disabled = false;
+        }
+      });
+    });
+  }
+
+  // Function to load roles
+  function loadRoles() {
+    google.script.run.withSuccessHandler(function(roles) {
+      document.querySelectorAll("select[name='role']").forEach(roleSelect => {
+        // Clear existing options
+        roleSelect.innerHTML = '<option value="">Select Role</option>';
+        
+        // Add new options
+        roles.forEach(function(role) {
+          const option = document.createElement("option");
+          option.value = role;
+          option.textContent = role;
+          roleSelect.appendChild(option);
+        });
+        
+        // Add change event listener
+        roleSelect.addEventListener("change", function() {
+          loadPokemonByRole(roleSelect);
+        });
+      });
+    }).getRoles();
+  }
+
+  // Function to load Pokémon based on selected role
+  function loadPokemonByRole(roleSelect) {
+    const role = roleSelect.value;
+    const form = roleSelect.closest("form");
+    const pokemonSelect = form.querySelector("select[name='pokemon']");
+    
+    // Clear existing options
+    pokemonSelect.innerHTML = '<option value="">Select Pokémon</option>';
+    
+    if (role) {
+      google.script.run.withSuccessHandler(function(data) {
+        const { pokemonList, movesetData } = data;
+        
+        // Add Pokemon options
+        pokemonList.forEach(function(pokemon, index) {
+          const option = document.createElement("option");
+          option.value = pokemon; // Store the actual Pokemon name
+          option.dataset.index = index; // Store index as data attribute
+          option.textContent = pokemon;
+          pokemonSelect.appendChild(option);
+        });
+        
+        // Store movesetData as a data attribute on the form
+        form.dataset.movesetData = JSON.stringify(movesetData);
+        
+        // Add change event listener to Pokemon select
+        pokemonSelect.addEventListener("change", function() {
+          updateMovesets(pokemonSelect);
+        });
+      }).getPokemonByRole(role);
+    }
+  }
+
+  // Function to update movesets based on selected Pokémon
+  function updateMovesets(pokemonSelect) {
+    const selectedOption = pokemonSelect.selectedOptions[0];
+    if (!selectedOption) return;
+    
+    const selectedIndex = selectedOption.dataset.index;
+    const form = pokemonSelect.closest("form");
+    const moveset1Select = form.querySelector("select[name='moveset1']");
+    const moveset2Select = form.querySelector("select[name='moveset2']");
+    
+    // Clear existing options
+    moveset1Select.innerHTML = '<option value="">Select Move 1</option>';
+    moveset2Select.innerHTML = '<option value="">Select Move 2</option>';
+    
+    if (selectedIndex !== undefined) {
+      const movesetData = JSON.parse(form.dataset.movesetData);
+      const movesets = movesetData[selectedIndex];
+      
+      // Add moveset 1 options
+      [movesets[0], movesets[1]].forEach(function(move) {
+        if (move) {
+          const option = document.createElement("option");
+          option.value = move;
+          option.textContent = move;
+          moveset1Select.appendChild(option);
+        }
+      });
+      
+      // Add moveset 2 options
+      [movesets[2], movesets[3]].forEach(function(move) {
+        if (move) {
+          const option = document.createElement("option");
+          option.value = move;
+          option.textContent = move;
+          moveset2Select.appendChild(option);
+        }
+      });
+    }
+  }
+
+  // Function to submit all form data
+  function submitAllData() {
+    let allData = [];
+    
+    // Get common field values from the first form or main inputs
+    const matchResultEl = document.getElementById('matchResult');
+    const opponentTeamEl = document.getElementById('opponentTeam');
+    
+    const matchResult = matchResultEl ? matchResultEl.value : "";
+    const opponentTeam = opponentTeamEl ? opponentTeamEl.value : "";
+    
+    // Basic validation
+    if (!matchResult || !opponentTeam) {
+      alert("Please enter match result and opponent team!");
+      return;
+    }
+    
+    // Collect data from all 5 forms
+    for (let i = 1; i <= 5; i++) {
+      const form = document.getElementById(`scrim-form-${i}`);
+      if (!form) continue;
+      
+      // Basic form validation
+      const requiredFields = form.querySelectorAll('[required]');
+      let isValid = true;
+      
+      requiredFields.forEach(field => {
+        if (!field.value) {
+          isValid = false;
+          field.classList.add('is-invalid');
+        } else {
+          field.classList.remove('is-invalid');
+        }
+      });
+      
+      if (!isValid) {
+        alert(`Please fill all required fields for Player ${i}`);
+        showTab(i);
+        return;
+      }
+      
+      const formData = new FormData(form);
+      let dataObject = {};
+      
+      formData.forEach((value, key) => {
+        dataObject[key] = value;
+      });
+      
+      // Check if this is a substitute player and replace member value with sub name
+      const memberSelect = form.querySelector("select[name='member']");
+      if (memberSelect && (memberSelect.value === 'sub1' || memberSelect.value === 'sub2' || memberSelect.value === 'Sub')) {
+        const subNameInput = form.querySelector(`#sub-name-${i}`);
+        if (subNameInput && subNameInput.value) {
+          dataObject.member = subNameInput.value;
+          dataObject.isSubstitute = true;
+        }
+      }
+      
+      // Ensure all entries have the same match result and opponent
+      dataObject.matchResult = matchResult;
+      dataObject.opponentTeam = opponentTeam;
+      
+      allData.push(dataObject);
+    }
+    
+    // Submit all data to the server
+    google.script.run
+      .withSuccessHandler(function() {
+        showSuccessMessage();
+      })
+      .withFailureHandler(function(error) {
+        showErrorMessage(error);
+      })
+      .saveScrimData(allData);
+  }
+
+  // Function to show success message
+  function showSuccessMessage() {
+    const statusMessage = document.getElementById('status-message');
+    
+    if (statusMessage) {
+      // Using existing status message element
+      statusMessage.textContent = 'Data saved successfully!';
+      statusMessage.className = 'alert alert-success';
+      statusMessage.style.display = 'block';
+      
+      // Hide the message after 3 seconds
+      setTimeout(() => {
+        statusMessage.style.display = 'none';
+      }, 3000);
+    } else {
+      // Create a new message element
+      const successDiv = document.createElement("div");
+      successDiv.className = "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-4";
+      successDiv.style.zIndex = "1050";
+      successDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+          <span class="me-2">✅</span>
+          <p class="mb-0">Data saved successfully!</p>
+        </div>
+      `;
+      document.body.appendChild(successDiv);
+
+      setTimeout(() => {
+        successDiv.remove();
+      }, 3000); // Auto-hide after 3 seconds
+    }
+  }
+
+  // Function to show error message
+  function showErrorMessage(error) {
+    const statusMessage = document.getElementById('status-message');
+    
+    if (statusMessage) {
+      // Using existing status message element
+      statusMessage.textContent = 'Error saving data: ' + error;
+      statusMessage.className = 'alert alert-danger';
+      statusMessage.style.display = 'block';
+      
+      // Hide the message after 5 seconds
+      setTimeout(() => {
+        statusMessage.style.display = 'none';
+      }, 5000);
+    } else {
+      // Create a new message element
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "alert alert-danger position-fixed top-0 start-50 translate-middle-x mt-4";
+      errorDiv.style.zIndex = "1050";
+      errorDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+          <span class="me-2">❌</span>
+          <p class="mb-0">Error saving data: ${error}</p>
+        </div>
+      `;
+      document.body.appendChild(errorDiv);
+
+      setTimeout(() => {
+        errorDiv.remove();
+      }, 5000); // Auto-hide after 5 seconds
+    }
+  }
+
+  // Function to update match result styling
+  function updateMatchResultStyle() {
+    const matchResultSelect = document.getElementById('matchResult');
+    if (!matchResultSelect) return;
+    
+    const container = document.querySelector('.container');
+    if (container) {
+      container.classList.remove('match-result-W', 'match-result-L');
+      
+      // Add the appropriate class based on selection
+      if (matchResultSelect.value) {
+        container.classList.add(`match-result-${matchResultSelect.value}`);
+      }
+    }
+    
+    // Update any result badges if they exist
+    const badges = document.querySelectorAll('.result-badge');
+    badges.forEach(badge => {
+      badge.parentNode.removeChild(badge);
+    });
+  }
+</script>
